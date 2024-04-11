@@ -14,4 +14,4 @@ python -m pip install -r requirements.txt
 ```
 
 ### Built With
-* [Metaflow](https://metaflow.org)
+* [Metaflow](https://metaflow.org) - Machine Learning Framework

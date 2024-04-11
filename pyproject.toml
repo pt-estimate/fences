@@ -7,6 +7,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+metaflow = "^2.11.9"
+pandas = "^2.2.2"
 
 
 [build-system]
