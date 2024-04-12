@@ -6,12 +6,26 @@ Given a labeled set of transaction records, train & validate a model to predict 
 Create a virtual environment and leverage a package installer like pip to install requirements.txt
 
 #### Prerequisites
-Setup a virtual environment
+homebrew
+python 3
+pipx
+poetry
 
 #### Installing
 ```zsh
-python -m pip install -r requirements.txt
+brew install pipx
+pipx install poetry
+```
+
+Clone this github repo
+From within the downloaded repo
+
+```zsh
+poetry shell
+python fences/load.py run
+jupyter-notebook fences/transactions.ipynb
 ```
 
 ### Built With
+* [Poetry](https://python-poetry.org) - Dependency Management & Packaging
 * [Metaflow](https://metaflow.org) - Machine Learning Framework
