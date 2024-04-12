@@ -1,2 +1,3 @@
 */*.csv
 *.metaflow
+*.ipynb_checkpoints

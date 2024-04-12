@@ -36,8 +36,9 @@ class TransactionStatsFlow(FlowSpec):
         This step simply prints out the shape of the dataframe.
 
         """
-        print("DataFrame for transactions " + \
-        f"has shape {self.df.shape}.")
+        print(f" The data has {self.df.shape[0]} records (rows)" + \
+        f" and {self.df.shape[1]} fields (columns).")
+
 
 if __name__ == "__main__":
     TransactionStatsFlow()
