@@ -18,7 +18,8 @@ pipx install poetry
 ```
 
 Clone this github repo
-From within the downloaded repo
+
+From within the downloaded repo, run the following to load the data for exploration.
 
 ```zsh
 poetry shell
