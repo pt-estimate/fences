@@ -9,8 +9,8 @@ class TransactionStatsFlow(FlowSpec):
     A flow to generate some statistics about the transaction data.
 
     This flow performs the following steps:
-    1) Download data from remote url
-    2) ...
+    1) Attempt to download the data from a local file
+    2) Otherwise download data from remote url
     """
 
     @step
