@@ -26,17 +26,19 @@ class TransactionDeduplicationFlow(FlowSpec):
         raw_df["transactionDateTime"] = raw_df["transactionDateTime"] \
         .apply(lambda _: pd.to_datetime(_, format="%Y-%m-%dT%H:%M:%S"))
         # To remove ["accountNumber","merchantName"] groups of only one
-        # occurance
-        dupe_count_df = raw_df.sort_values(["accountNumber",
+        # occurance so that when we leverage the time diff later, there is
+        # a difference between a single event and the first event
+        recur_count_df = raw_df.sort_values(["accountNumber",
                                             "merchantName",
                                             "transactionDateTime"]) \
                                 .groupby(["accountNumber",
-                                          "merchantName"]).size()
-        gt1_grp_count = dupe_count_df[dupe_count_df>1].reset_index()
-        gt1_grp_count.columns = ["accountNumber","merchantName",
-                                 "multiSwipeCount"]
+                                          "merchantName"]).size() \
+                                .reset_index()
+        #gt1_grp_count = dupe_count_df[dupe_count_df>1].reset_index()
+        recur_count_df.columns = ["accountNumber","merchantName",
+                                 "merchantRecurrenceCount"]
 
-        dupe_df = raw_df.merge(gt1_grp_count, how="inner",
+        dupe_df = raw_df.merge(recur_count_df, how="left",
                                on=["accountNumber","merchantName"])
         dupe_df["multiSwipeDiffSeconds"] = dupe_df.sort_values(
                                            ["accountNumber","merchantName", \
