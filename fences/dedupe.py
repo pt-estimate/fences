@@ -30,24 +30,42 @@ class TransactionDeduplicationFlow(FlowSpec):
         # a difference between a single event and the first event
         recur_count_df = raw_df.sort_values(["accountNumber",
                                             "merchantName",
+                                            "transactionAmount",
                                             "transactionDateTime"]) \
                                 .groupby(["accountNumber",
-                                          "merchantName"]).size() \
+                                          "merchantName",
+                                          "transactionAmount"]).size() \
                                 .reset_index()
         #gt1_grp_count = dupe_count_df[dupe_count_df>1].reset_index()
         recur_count_df.columns = ["accountNumber","merchantName",
-                                 "merchantRecurrenceCount"]
+                                 "transactionAmount","merchantRecurrenceCount"]
 
         dupe_df = raw_df.merge(recur_count_df, how="left",
-                               on=["accountNumber","merchantName"])
+                               on=["accountNumber","merchantName",
+                                   "transactionAmount"])
         dupe_df["multiSwipeDiffSeconds"] = dupe_df.sort_values(
                                            ["accountNumber","merchantName", \
-                                             "transactionDateTime"]) \
-                                .groupby(["accountNumber","merchantName"]) \
+                                            "transactionAmount", 
+                                            "transactionDateTime"]) \
+                                .groupby(["accountNumber","merchantName",
+                                          "transactionAmount"]) \
                                 ["transactionDateTime"].diff() \
                                 .fillna(pd.Timedelta(seconds=0)) \
                                 .dt.total_seconds()
-        self.df = dupe_df
+        dupe_df["merchantRecurrenceDiffSeconds"] = None
+        cond = (dupe_df["merchantRecurrenceCount"]>1)
+        dupe_df["merchantRecurrenceDiffSeconds"] = dupe_df[ \
+                "merchantRecurrenceDiffSeconds"].case_when( \
+                        [(cond, dupe_df["multiSwipeDiffSeconds"])])
+
+        print(dupe_df.shape)
+        cleaned_df = dupe_df[(dupe_df["transactionType"]!="REVERSAL") & \
+                             ((dupe_df["merchantRecurrenceDiffSeconds"]==0) | \
+                             (dupe_df["merchantRecurrenceDiffSeconds"]>180) | \
+                             (dupe_df["merchantRecurrenceDiffSeconds"] \
+                              .isnull()))]
+        print(cleaned_df.shape)
+        self.df = cleaned_df
         self.next(self.end)
 
     @step
