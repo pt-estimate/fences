@@ -1,7 +1,7 @@
 from metaflow import FlowSpec, step, IncludeFile
 
 RAW_URL = "https://github.com/CapitalOneRecruiting/DS/raw/master/transactions.zip"
-FILENAME = "transactions.csv"
+FILENAME = "../transactions.csv"
 
 
 class TransactionStatsFlow(FlowSpec):
