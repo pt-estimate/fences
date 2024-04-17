@@ -65,6 +65,9 @@ class TransactionDeduplicationFlow(FlowSpec):
                              (dupe_df["merchantRecurrenceDiffSeconds"] \
                               .isnull()))]
         print(deduped_df.shape)
+        # Drop recurrence feature
+        deduped_df.drop(["merchantRecurrenceDiffSeconds","merchantRecurrenceCount","multiSwipeDiffSeconds"], axis=1, \
+                inplace=True)
         self.df = deduped_df
         self.next(self.screen_account_abuse)
 
@@ -78,6 +81,7 @@ class TransactionDeduplicationFlow(FlowSpec):
         # Test to ensure no accounts are using the same payment instrument
         print("Test for payment instrument abuse")
         print(df.groupby("paymentInstrumentId")["accountNumber"].nunique())
+        df.drop(["paymentInstrumentId"], axis=1, inplace=True)
         self.next(self.end)
 
     @step

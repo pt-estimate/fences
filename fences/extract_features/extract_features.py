@@ -33,10 +33,19 @@ class FeatureExtractionFlow(FlowSpec):
         print(f"{cols_to_drop.values}.") 
         cleaned_df.drop(cols_to_drop, axis=1, inplace=True)
 
+        date_map = {"accountOpenDate":"%Y-%m-%d","dateOfLastAddressChange":
+                    "%Y-%m-%d","currentExpDate":"%m/%Y"}
+        for dt_feature in date_map:
+            cleaned_df[dt_feature] = cleaned_df[dt_feature].apply(lambda _: \
+                    pd.to_datetime(_, format=date_map[dt_feature]))
         print("Numeric features:")
         print(cleaned_df.select_dtypes(include='number').columns.values)
-        print("Object features:")
-        print(cleaned_df.select_dtypes(include='O').columns.values)
+        print("Object feature cardinality:")
+        cardinal_df = cleaned_df.select_dtypes(include="O")
+        print(cardinal_df.nunique())
+        print("Features prepped to one-hot encode:")
+        print(cardinal_df.loc[:, cardinal_df.nunique() <= 20].columns)
+
         self.next(self.end)
 
     @step
