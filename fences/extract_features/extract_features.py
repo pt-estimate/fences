@@ -45,7 +45,6 @@ class FeatureExtractionFlow(FlowSpec):
     def prepare_features(self):
         from category_encoders import OneHotEncoder
         feature_df = self.df
-        print("Extracting boolean feature: enteredCVVMatch")
         feature_df["enteredCVVMatch"] = feature_df["enteredCVV"] \
                                         .eq(feature_df["cardCVV"])
         print("Numeric features:")
@@ -54,8 +53,11 @@ class FeatureExtractionFlow(FlowSpec):
         cardinal_df = feature_df.select_dtypes(include="O")
         print(cardinal_df.nunique())
         print("Features to one-hot encode:")
-        ohe_features = cardinal_df.loc[:, cardinal_df.nunique() <= 20].columns
-        print(ohe_features)
+        ohe_features = cardinal_df.loc[:, cardinal_df.nunique() <= 5].columns
+        # TODO: embed these high-cardinality features
+        embedding_features = cardinal_df.loc[:, cardinal_df.nunique() \
+                                            > 5].columns
+        print(embedding_features)
         encoder = OneHotEncoder(cols=ohe_features)
         extracted_df = encoder.fit_transform(feature_df)
         self.next(self.end)
