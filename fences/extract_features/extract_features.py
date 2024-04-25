@@ -22,7 +22,7 @@ class FeatureExtractionFlow(FlowSpec):
 
         cleaned_df = run.data.df
 
-        leakage_data = ["accountNumber","customerId"]
+        leakage_data = ["accountNumber","customerId","cardLast4Digits"]
         print(f"Dropping leakage features:")
         print(leakage_data)
         cleaned_df.drop(leakage_data, axis=1, inplace=True)
@@ -38,14 +38,26 @@ class FeatureExtractionFlow(FlowSpec):
         for dt_feature in date_map:
             cleaned_df[dt_feature] = cleaned_df[dt_feature].apply(lambda _: \
                     pd.to_datetime(_, format=date_map[dt_feature]))
-        print("Numeric features:")
-        print(cleaned_df.select_dtypes(include='number').columns.values)
-        print("Object feature cardinality:")
-        cardinal_df = cleaned_df.select_dtypes(include="O")
-        print(cardinal_df.nunique())
-        print("Features prepped to one-hot encode:")
-        print(cardinal_df.loc[:, cardinal_df.nunique() <= 20].columns)
+        self.df = cleaned_df
+        self.next(self.prepare_features)
 
+    @step
+    def prepare_features(self):
+        from category_encoders import OneHotEncoder
+        feature_df = self.df
+        print("Extracting boolean feature: enteredCVVMatch")
+        feature_df["enteredCVVMatch"] = feature_df["enteredCVV"] \
+                                        .eq(feature_df["cardCVV"])
+        print("Numeric features:")
+        print(feature_df.select_dtypes(include='number').columns.values)
+        print("Object feature cardinality:")
+        cardinal_df = feature_df.select_dtypes(include="O")
+        print(cardinal_df.nunique())
+        print("Features to one-hot encode:")
+        ohe_features = cardinal_df.loc[:, cardinal_df.nunique() <= 20].columns
+        print(ohe_features)
+        encoder = OneHotEncoder(cols=ohe_features)
+        extracted_df = encoder.fit_transform(feature_df)
         self.next(self.end)
 
     @step
