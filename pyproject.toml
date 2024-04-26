@@ -12,6 +12,8 @@ pandas = "^2.2.2"
 notebook = "^7.1.2"
 seaborn = "^0.13.2"
 matplotlib = "^3.8.4"
+category-encoders = "^2.6.3"
+xgboost = "^2.0.3"
 
 
 [build-system]

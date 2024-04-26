@@ -60,6 +60,7 @@ class FeatureExtractionFlow(FlowSpec):
         print(embedding_features)
         encoder = OneHotEncoder(cols=ohe_features)
         extracted_df = encoder.fit_transform(feature_df)
+        self.df = extracted_df
         self.next(self.end)
 
     @step
