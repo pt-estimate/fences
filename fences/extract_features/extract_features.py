@@ -44,9 +44,26 @@ class FeatureExtractionFlow(FlowSpec):
     @step
     def prepare_features(self):
         from category_encoders import OneHotEncoder
+        import math
+        import numpy as np
+        import pandas as pd
+        
         feature_df = self.df
         feature_df["enteredCVVMatch"] = feature_df["enteredCVV"] \
                                         .eq(feature_df["cardCVV"])
+        #encode cyclical datetime
+        feature_df['txn_day_of_month'] = feature_df['transactionDateTime'].apply(lambda _:_.day)
+        feature_df['txn_day_of_week'] = feature_df['transactionDateTime'].apply(lambda _:_.dayofweek)
+        feature_df['txn_month_of_year'] = feature_df['transactionDateTime'].apply(lambda _:_.month)
+        feature_df['tdom_norm'] = 2 * math.pi *feature_df['txn_day_of_month'] / feature_df['txn_day_of_month'].max()
+        feature_df['tdow_norm'] = 2 * math.pi *feature_df['txn_day_of_week'] /feature_df['txn_day_of_week'].max()
+        feature_df['tmoy_norm'] = 2 * math.pi *feature_df['txn_month_of_year'] /feature_df['txn_month_of_year'].max()
+        feature_df['cos_tdom'] = np.cos(feature_df['tdom_norm'])
+        feature_df['cos_tdow'] = np.cos(feature_df['tdow_norm'])
+        feature_df['cos_tmoy'] = np.cos(feature_df['tmoy_norm'])
+        feature_df['sin_tdom'] = np.sin(feature_df['tdom_norm'])
+        feature_df['sin_tdow'] = np.sin(feature_df['tdow_norm'])
+        feature_df['sin_tmoy'] = np.sin(feature_df['tmoy_norm'])
         print("Numeric features:")
         print(feature_df.select_dtypes(include='number').columns.values)
         print("Object feature cardinality:")
