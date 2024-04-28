@@ -47,7 +47,7 @@ class FeatureExtractionFlow(FlowSpec):
         import math
         import numpy as np
         import pandas as pd
-        
+
         feature_df = self.df
         feature_df["enteredCVVMatch"] = feature_df["enteredCVV"] \
                                         .eq(feature_df["cardCVV"])
@@ -64,6 +64,9 @@ class FeatureExtractionFlow(FlowSpec):
         feature_df['sin_tdom'] = np.sin(feature_df['tdom_norm'])
         feature_df['sin_tdow'] = np.sin(feature_df['tdow_norm'])
         feature_df['sin_tmoy'] = np.sin(feature_df['tmoy_norm'])
+        feature_df.drop(['txn_day_of_month','txn_day_of_week',
+                         'txn_month_of_year','tdom_norm','tdow_norm',
+                         'tmoy_norm'], axis=1)
         print("Numeric features:")
         print(feature_df.select_dtypes(include='number').columns.values)
         print("Object feature cardinality:")
